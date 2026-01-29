@@ -1,30 +1,33 @@
-import Navbar from "./components/Navbar"
-import Hero from "./components/Hero"
-import InfoCards from "./components/InfoCards"
-import AboutSection from "./components/AboutSection"
-import ServicesSection from "./components/ServicesSection"
-import OrganizationSection from "./components/OrganizationSection"
-import GallerySection from "./components/GallerySection"
-import DataSection from "./components/DataSection"
-import ContactSection from "./components/ContactSection"
-import Footer from "./components/Footer"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
+import ProtectedRoute from "./components/ProtectedRoute"
+import PublicHome from "./pages/PublicHome"
+import LoginPage from "./pages/Login"
+import NewsList from "./pages/NewsList"
+import NewsDetail from "./pages/NewsDetail"
+import DashboardLayout from "./pages/dashboard/DashboardLayout"
+import SectionPage from "./pages/dashboard/SectionPage"
+import AboutPage from "./pages/dashboard/AboutPage"
+import NewsPage from "./pages/dashboard/NewsPage"
 
 function App() {
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      <main>
-        <Hero />
-        <InfoCards />
-        <AboutSection />
-        <ServicesSection />
-        <OrganizationSection />
-        <GallerySection />
-        <DataSection />
-        <ContactSection />
-      </main>
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<PublicHome />} />
+        <Route path="/berita" element={<NewsList />} />
+        <Route path="/berita/:slug" element={<NewsDetail />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Navigate to="/dashboard/tentang" replace />} />
+            <Route path="tentang" element={<AboutPage />} />
+            <Route path="berita" element={<NewsPage />} />
+            <Route path=":sectionKey" element={<SectionPage />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<PublicHome />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

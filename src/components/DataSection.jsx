@@ -1,7 +1,8 @@
 import SectionHeader from "./SectionHeader"
-import { dataGroups } from "../data/siteData"
 
-export default function DataSection() {
+export default function DataSection({ dataGroups = [] }) {
+  if (!dataGroups.length) return null
+
   return (
     <section id="data" className="bg-brand-50/60 py-16">
       <div className="container-section">
@@ -23,7 +24,7 @@ export default function DataSection() {
                 <span className="text-brand-600 transition group-open:rotate-180">⌄</span>
               </summary>
               <div className="mt-4 space-y-2 text-sm text-slate-600">
-                {group.items.map((item) => (
+                {group.items?.map((item) => (
                   <div key={item} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
                     <span>{item}</span>
                     <span className="rounded-full bg-brand-600 px-3 py-1 text-xs font-semibold text-white">

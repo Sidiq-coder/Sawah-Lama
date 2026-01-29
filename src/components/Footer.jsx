@@ -1,6 +1,4 @@
-import { quickLinks } from "../data/siteData"
-
-export default function Footer() {
+export default function Footer({ quickLinks = [] }) {
   return (
     <footer className="bg-brand-700 text-white">
       <div className="container-section grid gap-8 py-10 md:grid-cols-[1.4fr_1fr_1fr]">

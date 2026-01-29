@@ -1,24 +1,32 @@
-import { useEffect, useState } from "react"
-import { heroSlides } from "../data/siteData"
+import { useEffect, useMemo, useState } from "react"
 
-export default function Hero() {
+export default function Hero({ slides = [] }) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const items = useMemo(() => (slides?.length ? slides : []), [slides])
 
   useEffect(() => {
+    if (!items.length) return undefined
+
     const intervalId = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % heroSlides.length)
+      setActiveIndex((prev) => (prev + 1) % items.length)
     }, 5000)
 
     return () => clearInterval(intervalId)
-  }, [])
+  }, [items.length])
 
   const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)
+    setActiveIndex((prev) => (prev - 1 + items.length) % items.length)
   }
 
   const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % heroSlides.length)
+    setActiveIndex((prev) => (prev + 1) % items.length)
   }
+
+  if (!items.length) return null
+
+  const current = items[activeIndex]
+  const ctaHref = current?.ctaHref || current?.cta_href || "#"
+  const ctaLabel = current?.ctaLabel || current?.cta_label || "Selengkapnya"
 
   return (
     <section id="beranda" className="relative overflow-hidden bg-brand-700 text-white">
@@ -45,21 +53,21 @@ export default function Hero() {
 
           <div key={activeIndex} className="animate-fade-up">
             <h1 className="text-3xl font-bold sm:text-4xl lg:text-5xl">
-              {heroSlides[activeIndex].title}
+              {current.title}
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-sm text-white/90 sm:text-base">
-              {heroSlides[activeIndex].description}
+              {current.description}
             </p>
             <a
-              href={heroSlides[activeIndex].ctaHref}
+              href={ctaHref}
               className="mt-8 inline-flex rounded-full border-2 border-brand-200 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-brand-700"
             >
-              {heroSlides[activeIndex].ctaLabel}
+              {ctaLabel}
             </a>
           </div>
 
           <div className="mt-10 flex items-center justify-center gap-2">
-            {heroSlides.map((_, index) => (
+            {items.map((_, index) => (
               <button
                 key={index}
                 type="button"

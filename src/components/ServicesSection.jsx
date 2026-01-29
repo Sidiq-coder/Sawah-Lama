@@ -1,7 +1,8 @@
 import SectionHeader from "./SectionHeader"
-import { services } from "../data/siteData"
 
-export default function ServicesSection() {
+export default function ServicesSection({ services = [] }) {
+  if (!services.length) return null
+
   return (
     <section id="pelayanan" className="bg-brand-50/60 py-16">
       <div className="container-section">

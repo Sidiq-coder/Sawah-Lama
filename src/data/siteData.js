@@ -212,3 +212,45 @@ export const quickLinks = [
   "Data",
   "Kontak",
 ]
+
+export const newsPosts = [
+  {
+    id: "demo-berita-1",
+    title: "Program Pelayanan Terpadu 2026",
+    slug: "program-pelayanan-terpadu-2026",
+    summary: "Peluncuran layanan terpadu dengan antrean digital untuk mempercepat proses administrasi warga.",
+    cover_url:
+      "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=800&q=60",
+    tags: ["Pelayanan", "Digital"],
+    is_featured: true,
+    is_published: true,
+    published_at: "2026-01-15T02:00:00.000Z",
+    link: "#",
+  },
+  {
+    id: "demo-berita-2",
+    title: "Gotong Royong Bulanan RW 05",
+    slug: "gotong-royong-bulanan-rw-05",
+    summary: "Warga bergotong royong membersihkan drainase dan ruang publik untuk menghadapi musim hujan.",
+    cover_url:
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=60",
+    tags: ["Lingkungan"],
+    is_featured: false,
+    is_published: true,
+    published_at: "2025-12-20T02:00:00.000Z",
+    link: "#",
+  },
+  {
+    id: "demo-berita-3",
+    title: "Pelatihan UMKM Kreatif",
+    slug: "pelatihan-umkm-kreatif",
+    summary: "UMKM Sawah Lama mendapat pelatihan pemasaran digital untuk memperluas akses pasar.",
+    cover_url:
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=60",
+    tags: ["UMKM", "Ekonomi"],
+    is_featured: false,
+    is_published: true,
+    published_at: "2025-11-05T02:00:00.000Z",
+    link: "#",
+  },
+]

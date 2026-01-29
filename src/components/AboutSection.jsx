@@ -1,7 +1,8 @@
 import SectionHeader from "./SectionHeader"
-import { aboutInfo, wilayahInfo } from "../data/siteData"
 
-export default function AboutSection() {
+export default function AboutSection({ aboutInfo, wilayahInfo = [] }) {
+  if (!aboutInfo) return null
+
   return (
     <section id="tentang" className="py-16">
       <div className="container-section">
@@ -16,7 +17,7 @@ export default function AboutSection() {
             <h3 className="text-lg font-semibold text-slate-900">{aboutInfo.title}</h3>
             <p className="text-sm text-slate-600">{aboutInfo.description}</p>
             <ul className="space-y-2 text-sm text-slate-600">
-              {aboutInfo.points.map((point) => (
+              {aboutInfo.points?.map((point) => (
                 <li key={point} className="flex items-start gap-2">
                   <span className="mt-1 inline-flex h-2 w-2 rounded-full bg-brand-500" />
                   <span>{point}</span>
@@ -31,7 +32,7 @@ export default function AboutSection() {
               <span className="chip">Update</span>
             </div>
             <div className="mt-4 space-y-3 text-sm">
-              {wilayahInfo.map((item) => (
+              {wilayahInfo?.map((item) => (
                 <div key={item.label} className="flex items-center justify-between">
                   <span className="text-slate-500">{item.label}</span>
                   <span className="font-semibold text-slate-800">{item.value}</span>

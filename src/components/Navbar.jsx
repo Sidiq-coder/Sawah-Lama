@@ -1,7 +1,6 @@
 import { useState } from "react"
-import { navItems } from "../data/siteData"
 
-export default function Navbar() {
+export default function Navbar({ navItems = [] }) {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleToggle = () => {
@@ -35,12 +34,20 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <a
-          href="#kontak"
-          className="hidden rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-brand-700 md:inline-flex"
-        >
-          Hubungi Kami
-        </a>
+        <div className="hidden items-center gap-3 md:inline-flex">
+          <a
+            href="#kontak"
+            className="rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-brand-700"
+          >
+            Hubungi Kami
+          </a>
+          <a
+            href="/login"
+            className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-700 transition hover:bg-brand-100"
+          >
+            Dashboard
+          </a>
+        </div>
 
         <button
           type="button"
@@ -69,13 +76,21 @@ export default function Navbar() {
               {item.label}
             </a>
           ))}
-          <a
-            href="#kontak"
-            onClick={handleClose}
-            className="inline-flex w-fit rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-brand-700"
-          >
-            Hubungi Kami
-          </a>
+          <div className="flex flex-col gap-2">
+            <a
+              href="#kontak"
+              onClick={handleClose}
+              className="inline-flex w-fit rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-brand-700"
+            >
+              Hubungi Kami
+            </a>
+            <a
+              href="/login"
+              className="inline-flex w-fit rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-700"
+            >
+              Dashboard
+            </a>
+          </div>
         </div>
       </div>
     </header>

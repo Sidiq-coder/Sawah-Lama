@@ -1,7 +1,8 @@
 import SectionHeader from "./SectionHeader"
-import { contactInfo } from "../data/siteData"
 
-export default function ContactSection() {
+export default function ContactSection({ contactInfo = [] }) {
+  if (!contactInfo.length) return null
+
   return (
     <section id="kontak" className="bg-white py-16">
       <div className="container-section">
