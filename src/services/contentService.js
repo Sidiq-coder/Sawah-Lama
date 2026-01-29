@@ -1,33 +1,19 @@
 import { supabase, isSupabaseConfigured } from "../lib/supabaseClient"
-import {
-  heroSlides as heroSlidesFallback,
-  featureCards as featureCardsFallback,
-  aboutInfo as aboutInfoFallback,
-  wilayahInfo as wilayahInfoFallback,
-  services as servicesFallback,
-  organization as organizationFallback,
-  galleryItems as galleryItemsFallback,
-  dataGroups as dataGroupsFallback,
-  contactInfo as contactInfoFallback,
-  quickLinks as quickLinksFallback,
-  newsPosts as newsPostsFallback,
-} from "../data/siteData"
 
-const fallbackContent = {
-  heroSlides: heroSlidesFallback,
-  featureCards: featureCardsFallback,
-  aboutInfo: aboutInfoFallback,
-  wilayahInfo: wilayahInfoFallback,
-  services: servicesFallback,
-  organization: organizationFallback,
-  galleryItems: galleryItemsFallback,
-  dataGroups: dataGroupsFallback,
-  contactInfo: contactInfoFallback,
-  quickLinks: quickLinksFallback,
-  newsPosts: newsPostsFallback,
+const emptyContent = {
+  heroSlides: [],
+  featureCards: [],
+  aboutInfo: null,
+  wilayahInfo: [],
+  services: [],
+  organization: [],
+  galleryItems: [],
+  dataGroups: [],
+  contactInfo: [],
+  newsPosts: [],
 }
 
-async function fetchOrdered(table, fallback, { orderBy = "sort_order", ascending = true } = {}) {
+async function fetchOrdered(table, fallback = [], { orderBy = "sort_order", ascending = true } = {}) {
   if (!isSupabaseConfigured || !supabase) return fallback
 
   const query = supabase.from(table).select("*")
@@ -44,7 +30,7 @@ async function fetchOrdered(table, fallback, { orderBy = "sort_order", ascending
   return data?.length ? data : fallback
 }
 
-async function fetchSingle(table, fallback, { orderBy = "updated_at", ascending = false } = {}) {
+async function fetchSingle(table, fallback = null, { orderBy = "updated_at", ascending = false } = {}) {
   if (!isSupabaseConfigured || !supabase) return fallback
   const query = supabase.from(table).select("*").limit(1)
   if (orderBy) {
@@ -79,7 +65,7 @@ function ensureSupabase() {
 
 export async function fetchPublicContent() {
   if (!isSupabaseConfigured || !supabase) {
-    return fallbackContent
+    return emptyContent
   }
 
   try {
@@ -95,15 +81,15 @@ export async function fetchPublicContent() {
       contactInfo,
       newsPosts,
     ] = await Promise.all([
-      fetchOrdered("hero_slides", heroSlidesFallback),
-      fetchOrdered("feature_cards", featureCardsFallback),
-      fetchSingle("about_info", aboutInfoFallback),
-      fetchOrdered("wilayah_stats", wilayahInfoFallback),
-      fetchOrdered("services", servicesFallback),
-      fetchOrdered("organization_members", organizationFallback),
-      fetchOrdered("gallery_items", galleryItemsFallback),
-      fetchOrdered("data_groups", dataGroupsFallback),
-      fetchOrdered("contact_info", contactInfoFallback),
+      fetchOrdered("hero_slides"),
+      fetchOrdered("feature_cards"),
+      fetchSingle("about_info"),
+      fetchOrdered("wilayah_stats"),
+      fetchOrdered("services"),
+      fetchOrdered("organization_members"),
+      fetchOrdered("gallery_items"),
+      fetchOrdered("data_groups"),
+      fetchOrdered("contact_info"),
       fetchNewsPosts(),
     ])
 
@@ -117,18 +103,17 @@ export async function fetchPublicContent() {
       galleryItems,
       dataGroups,
       contactInfo,
-      quickLinks: quickLinksFallback,
       newsPosts,
     }
   } catch (error) {
     console.error("Failed to load Supabase content:", error)
-    return fallbackContent
+    return emptyContent
   }
 }
 
 export async function fetchNewsPosts(limit = 8) {
   if (!isSupabaseConfigured || !supabase) {
-    return newsPostsFallback.slice(0, limit)
+    return []
   }
 
   const { data, error } = await supabase
@@ -140,10 +125,10 @@ export async function fetchNewsPosts(limit = 8) {
 
   if (error) {
     console.error("Supabase error (news_posts):", error.message)
-    return newsPostsFallback.slice(0, limit)
+    return []
   }
 
-  return data?.length ? data : newsPostsFallback.slice(0, limit)
+  return data?.length ? data : []
 }
 
 export async function fetchDashboardContent() {

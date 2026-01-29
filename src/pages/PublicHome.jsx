@@ -10,38 +10,24 @@ import DataSection from "../components/DataSection"
 import ContactSection from "../components/ContactSection"
 import Footer from "../components/Footer"
 import { usePublicContent } from "../hooks/usePublicContent"
-import {
-  navItems,
-  heroSlides,
-  featureCards,
-  aboutInfo,
-  wilayahInfo,
-  services,
-  organization,
-  galleryItems,
-  dataGroups,
-  contactInfo,
-  quickLinks,
-  newsPosts,
-} from "../data/siteData"
+import { navItems, quickLinks } from "../data/siteData"
 
-const fallbackContent = {
-  heroSlides,
-  featureCards,
-  aboutInfo,
-  wilayahInfo,
-  services,
-  organization,
-  galleryItems,
-  dataGroups,
-  contactInfo,
-  quickLinks,
-  newsPosts,
+const emptyContent = {
+  heroSlides: [],
+  featureCards: [],
+  aboutInfo: null,
+  wilayahInfo: [],
+  services: [],
+  organization: [],
+  galleryItems: [],
+  dataGroups: [],
+  contactInfo: [],
+  newsPosts: [],
 }
 
 export default function PublicHome() {
   const { data, isLoading } = usePublicContent()
-  const content = data || fallbackContent
+  const content = data || emptyContent
 
   return (
     <div className="min-h-screen bg-white">
@@ -62,7 +48,7 @@ export default function PublicHome() {
         <DataSection dataGroups={content.dataGroups} />
         <ContactSection contactInfo={content.contactInfo} />
       </main>
-      <Footer quickLinks={content.quickLinks} />
+      <Footer quickLinks={quickLinks} />
     </div>
   )
 }

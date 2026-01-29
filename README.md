@@ -66,7 +66,7 @@ Landing page + admin dashboard built with React 19, Vite, Tailwind CSS, Supabase
 
 ### 🗄️ Struktur Data
 
-- File referensi data statis berada di `src/data/siteData.js` (digunakan sebagai fallback).
+- Navigasi publik berada di `src/data/siteData.js`, sedangkan konten landing page sepenuhnya berasal dari Supabase.
 - Service publik: `src/services/contentService.js`
 - Service admin: `src/services/adminService.js`
 - Supabase client: `src/lib/supabaseClient.js`
