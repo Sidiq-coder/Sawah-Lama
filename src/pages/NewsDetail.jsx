@@ -149,7 +149,7 @@ function renderContentBlocks(blocks) {
               <img
                 src={resolvePublicUrl(imageBlock.data?.file?.url)}
                 alt={imageBlock.data?.caption || "Gambar"}
-                className="h-64 w-full rounded-3xl object-cover"
+                className="mx-auto max-h-[28rem] w-auto max-w-full rounded-3xl object-contain"
                 loading="lazy"
               />
               {imageBlock.data?.caption ? (
@@ -219,12 +219,14 @@ export default function NewsDetail() {
 
       <div className="container-section py-10">
         {article.cover_url ? (
-          <img
-            src={resolvePublicUrl(article.cover_url)}
-            alt={article.title}
-            className="mb-6 h-32 w-full rounded-3xl object-cover"
-            loading="lazy"
-          />
+          <div className="mb-6 flex w-full justify-center">
+            <img
+              src={resolvePublicUrl(article.cover_url)}
+              alt={article.title}
+              className="max-h-72 w-auto max-w-full rounded-3xl object-contain"
+              loading="lazy"
+            />
+          </div>
         ) : null}
 
         <article className="prose max-w-none text-xl leading-relaxed sm:text-2xl">

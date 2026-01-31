@@ -45,6 +45,18 @@ export async function saveAboutInfo(payload) {
   return data
 }
 
+export async function saveWilayahMap(payload) {
+  ensureSupabase()
+  const data = await handleResponse(
+    supabase
+      .from("wilayah_map")
+      .upsert({ id: 1, ...payload, updated_at: new Date().toISOString() })
+      .select()
+      .single(),
+  )
+  return data
+}
+
 export async function saveNewsPost(payload) {
   ensureSupabase()
   const base = {

@@ -32,6 +32,7 @@ export const dashboardSections = [
       { name: "description", label: "Deskripsi", type: "textarea" },
       { name: "icon", label: "Emoji/Icon" },
       { name: "image_url", label: "URL Gambar", placeholder: "https://" },
+      { name: "link_href", label: "Tautan", placeholder: "/layanan" },
       { name: "sort_order", label: "Urutan", type: "number" },
     ],
     imageFields: ["image_url"],
@@ -49,6 +50,7 @@ export const dashboardSections = [
       { name: "icon", label: "Emoji/Icon" },
       { name: "sort_order", label: "Urutan", type: "number" },
     ],
+    customComponent: "serviceMedia",
   },
   {
     key: "organization",
@@ -120,6 +122,7 @@ export const dashboardSections = [
       { name: "sort_order", label: "Urutan", type: "number" },
     ],
     imageFields: ["image_url"],
+    customComponent: "wilayahMap",
   },
   {
     key: "contactInfo",

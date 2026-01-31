@@ -12,11 +12,33 @@ import Footer from "../components/Footer"
 import { usePublicContent } from "../hooks/usePublicContent"
 import { navItems, quickLinks } from "../data/siteData"
 
+const PREVIEW_LIMIT = 3
+
+function sortNewest(items = []) {
+  return [...items].sort((a, b) => {
+    const timeA = getTimestamp(a?.created_at ?? a?.createdAt)
+    const timeB = getTimestamp(b?.created_at ?? b?.createdAt)
+    if (timeA !== timeB) {
+      return timeB - timeA
+    }
+    const orderA = Number.isFinite(a?.sort_order) ? a.sort_order : Number(a?.sortOrder) || 0
+    const orderB = Number.isFinite(b?.sort_order) ? b.sort_order : Number(b?.sortOrder) || 0
+    return orderA - orderB
+  })
+}
+
+function getTimestamp(value) {
+  if (!value) return 0
+  const parsed = new Date(value).getTime()
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
 const emptyContent = {
   heroSlides: [],
   featureCards: [],
   aboutInfo: null,
   wilayahInfo: [],
+  wilayahMap: null,
   services: [],
   organization: [],
   galleryItems: [],
@@ -28,6 +50,8 @@ const emptyContent = {
 export default function PublicHome() {
   const { data, isLoading } = usePublicContent()
   const content = data || emptyContent
+  const latestGalleryItems = sortNewest(content.galleryItems).slice(0, PREVIEW_LIMIT)
+  const latestNewsPosts = sortNewest(content.newsPosts).slice(0, PREVIEW_LIMIT)
 
   return (
     <div className="min-h-screen bg-white">
@@ -43,8 +67,8 @@ export default function PublicHome() {
         <AboutSection aboutInfo={content.aboutInfo} wilayahInfo={content.wilayahInfo} />
         <ServicesSection services={content.services} />
         <OrganizationSection organization={content.organization} />
-        <GallerySection items={content.galleryItems} />
-        <NewsSection news={content.newsPosts} />
+        <GallerySection items={latestGalleryItems} />
+        <NewsSection news={latestNewsPosts} />
         <DataSection dataGroups={content.dataGroups} />
         <ContactSection contactInfo={content.contactInfo} />
       </main>

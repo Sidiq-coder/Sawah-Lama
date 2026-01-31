@@ -5,10 +5,12 @@ const emptyContent = {
   featureCards: [],
   aboutInfo: null,
   wilayahInfo: [],
+  wilayahMap: null,
   services: [],
   organization: [],
   galleryItems: [],
   galleryMedia: [],
+  serviceMedia: [],
   dataGroups: [],
   contactInfo: [],
   newsPosts: [],
@@ -101,6 +103,38 @@ async function fetchGalleryCollections() {
   }))
 }
 
+async function fetchServiceCollections() {
+  if (!isSupabaseConfigured || !supabase) return []
+
+  const { data, error } = await supabase
+    .from("services")
+    .select("*, media:service_media(*)")
+    .order("sort_order", { ascending: true })
+    .order("sort_order", { ascending: true, foreignTable: "service_media" })
+
+  if (!error) {
+    return (
+      data?.map((item) => ({
+        ...item,
+        media: item.media?.map((entry) => ({ ...entry })) || [],
+      })) || []
+    )
+  }
+
+  const relationMissing = error?.code === "42P01" || /service_media/.test(error?.message || "")
+  console.warn(
+    relationMissing
+      ? "Tabel service_media belum tersedia, menggunakan data layanan dasar sebagai fallback."
+      : `Supabase error (services): ${error.message}`,
+  )
+
+  const fallbackItems = await fetchOrdered("services")
+  return fallbackItems.map((item) => ({
+    ...item,
+    media: Array.isArray(item.media) ? item.media : [],
+  }))
+}
+
 export async function fetchPublicContent() {
   if (!isSupabaseConfigured || !supabase) {
     return emptyContent
@@ -112,6 +146,7 @@ export async function fetchPublicContent() {
       featureCards,
       aboutInfo,
       wilayahInfo,
+      wilayahMap,
       services,
       organization,
       galleryItems,
@@ -123,7 +158,8 @@ export async function fetchPublicContent() {
       fetchOrdered("feature_cards"),
       fetchSingle("about_info"),
       fetchOrdered("wilayah_stats"),
-      fetchOrdered("services"),
+      fetchSingle("wilayah_map"),
+      fetchServiceCollections(),
       fetchOrdered("organization_members"),
       fetchGalleryCollections(),
       fetchOrdered("data_groups"),
@@ -136,6 +172,7 @@ export async function fetchPublicContent() {
       featureCards,
       aboutInfo,
       wilayahInfo,
+      wilayahMap,
       services,
       organization,
       galleryItems,
@@ -176,10 +213,12 @@ export async function fetchDashboardContent() {
     featureCards,
     aboutInfo,
     wilayahInfo,
+    wilayahMap,
     services,
     organization,
     galleryItems,
     galleryMedia,
+    serviceMedia,
     dataGroups,
     contactInfo,
     newsPosts,
@@ -188,10 +227,12 @@ export async function fetchDashboardContent() {
     fetchOrderedRaw("feature_cards"),
     fetchSingle("about_info", {}),
     fetchOrderedRaw("wilayah_stats"),
+    fetchSingle("wilayah_map", {}),
     fetchOrderedRaw("services"),
     fetchOrderedRaw("organization_members"),
     fetchOrderedRaw("gallery_items"),
     fetchOrderedRaw("gallery_media"),
+    fetchOrderedRaw("service_media"),
     fetchOrderedRaw("data_groups"),
     fetchOrderedRaw("contact_info"),
     supabase
@@ -209,10 +250,12 @@ export async function fetchDashboardContent() {
     featureCards,
     aboutInfo,
     wilayahInfo,
+    wilayahMap,
     services,
     organization,
     galleryItems,
     galleryMedia,
+    serviceMedia,
     dataGroups,
     contactInfo,
     newsPosts,

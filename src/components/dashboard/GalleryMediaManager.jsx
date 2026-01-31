@@ -19,32 +19,42 @@ export default function GalleryMediaManager({
   onSave,
   onDelete,
   onUploadFile,
+  relationKey = "gallery_item_id",
+  title = "Media Galeri",
+  description = "Kelola foto & video per galeri",
+  emptyStateMessage = "Tambahkan galeri terlebih dahulu untuk mengunggah media.",
+  selectLabel = "Pilih Galeri",
+  activeLabelPrefix = "Galeri aktif",
+  collectionName = "galeri",
+  uploadFolder = "gallery",
 }) {
-  const [selectedGalleryId, setSelectedGalleryId] = useState(galleries[0]?.id || "")
+  const collections = Array.isArray(galleries) ? galleries : []
+  const [selectedCollectionId, setSelectedCollectionId] = useState(collections[0]?.id || "")
   const [formState, setFormState] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
   const [status, setStatus] = useState({ type: "idle", message: "" })
   const [uploading, setUploading] = useState(false)
+  const normalizedCollectionName = collectionName || "galeri"
 
   useEffect(() => {
-    if (galleries.length === 0) {
-      setSelectedGalleryId("")
+    if (collections.length === 0) {
+      setSelectedCollectionId("")
       return
     }
-    if (!selectedGalleryId) {
-      setSelectedGalleryId(galleries[0].id)
-    } else if (!galleries.find((item) => item.id === selectedGalleryId)) {
-      setSelectedGalleryId(galleries[0].id)
+    if (!selectedCollectionId) {
+      setSelectedCollectionId(collections[0].id)
+    } else if (!collections.find((item) => item.id === selectedCollectionId)) {
+      setSelectedCollectionId(collections[0].id)
     }
-  }, [galleries, selectedGalleryId])
+  }, [collections, selectedCollectionId])
 
-  const galleryMedia = useMemo(() => {
-    if (!selectedGalleryId) return []
-    return media.filter((item) => item.gallery_item_id === selectedGalleryId)
-  }, [media, selectedGalleryId])
+  const collectionMedia = useMemo(() => {
+    if (!selectedCollectionId) return []
+    return media.filter((item) => item?.[relationKey] === selectedCollectionId)
+  }, [media, relationKey, selectedCollectionId])
 
-  const selectedGallery = galleries.find((item) => item.id === selectedGalleryId)
-  const formDisabled = !selectedGalleryId
+  const selectedCollection = collections.find((item) => item.id === selectedCollectionId)
+  const formDisabled = !selectedCollectionId
 
   const resetForm = (clearStatus = true) => {
     setFormState(initialForm)
@@ -72,11 +82,11 @@ export default function GalleryMediaManager({
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    if (!selectedGalleryId || !onSave) return
+    if (!selectedCollectionId || !onSave) return
     setStatus({ type: "loading", message: "Menyimpan media..." })
     try {
       const payload = {
-        gallery_item_id: selectedGalleryId,
+        [relationKey]: selectedCollectionId,
         media_type: formState.media_type,
         url: formState.url,
         caption: formState.caption,
@@ -112,8 +122,11 @@ export default function GalleryMediaManager({
     if (!files.length || !onUploadFile) return
 
     const bulkMode = files.length > 1
-    if (bulkMode && (!selectedGalleryId || !onSave)) {
-      setStatus({ type: "error", message: "Pilih galeri sebelum unggah banyak file" })
+    if (bulkMode && (!selectedCollectionId || !onSave)) {
+      setStatus({
+        type: "error",
+        message: `Pilih ${normalizedCollectionName} sebelum unggah banyak file`,
+      })
       input.value = ""
       return
     }
@@ -125,14 +138,14 @@ export default function GalleryMediaManager({
     })
 
     try {
-      let nextOrder = galleryMedia.length
+      let nextOrder = collectionMedia.length
       for (const file of files) {
         const mediaType = file.type?.toLowerCase().startsWith("video") ? "video" : "image"
-        const url = await onUploadFile(file, { folder: "gallery" })
+        const url = await onUploadFile(file, { folder: uploadFolder })
 
         if (bulkMode) {
           const payload = {
-            gallery_item_id: selectedGalleryId,
+            [relationKey]: selectedCollectionId,
             media_type: mediaType,
             url,
             caption: "",
@@ -147,7 +160,9 @@ export default function GalleryMediaManager({
 
       setStatus({
         type: "success",
-        message: bulkMode ? `${files.length} file ditambahkan ke galeri` : "File berhasil diunggah",
+        message: bulkMode
+          ? `${files.length} file ditambahkan ke ${normalizedCollectionName}`
+          : "File berhasil diunggah",
       })
       if (bulkMode) {
         resetForm(false)
@@ -164,12 +179,12 @@ export default function GalleryMediaManager({
     <section className="rounded-3xl bg-white p-6 shadow-soft ring-1 ring-slate-100">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-brand-600">Media Galeri</p>
-          <h3 className="text-xl font-semibold text-slate-900">Kelola foto & video per galeri</h3>
-          {selectedGallery ? (
-            <p className="text-sm text-slate-500">Galeri aktif: {selectedGallery.title}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-brand-600">{title}</p>
+          <h3 className="text-xl font-semibold text-slate-900">{description}</h3>
+          {selectedCollection ? (
+            <p className="text-sm text-slate-500">{activeLabelPrefix}: {selectedCollection.title}</p>
           ) : (
-            <p className="text-sm text-slate-500">Tambahkan galeri terlebih dahulu untuk mengunggah media.</p>
+            <p className="text-sm text-slate-500">{emptyStateMessage}</p>
           )}
         </div>
         {status.type !== "idle" && status.message ? (
@@ -190,30 +205,30 @@ export default function GalleryMediaManager({
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_0.6fr]">
         <div className="space-y-4">
           <label className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-600">
-            Pilih Galeri
+            {selectLabel}
             <select
               className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
-              value={selectedGalleryId}
+              value={selectedCollectionId}
               onChange={(event) => {
-                setSelectedGalleryId(event.target.value)
+                setSelectedCollectionId(event.target.value)
                 resetForm()
               }}
-              disabled={!galleries.length}
+              disabled={!collections.length}
             >
-              {galleries.map((gallery) => (
-                <option key={gallery.id} value={gallery.id}>
-                  {gallery.title}
+              {collections.map((collection) => (
+                <option key={collection.id} value={collection.id}>
+                  {collection.title}
                 </option>
               ))}
             </select>
           </label>
 
           <div className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-            {galleryMedia.length === 0 ? (
-              <p className="text-sm text-slate-500">Belum ada media untuk galeri ini.</p>
+            {collectionMedia.length === 0 ? (
+              <p className="text-sm text-slate-500">Belum ada media untuk {normalizedCollectionName} ini.</p>
             ) : (
               <ul className="space-y-3 text-sm">
-                {galleryMedia.map((item) => {
+                {collectionMedia.map((item) => {
                   const previewUrl = resolvePublicUrl(item.url)
                   return (
                     <li

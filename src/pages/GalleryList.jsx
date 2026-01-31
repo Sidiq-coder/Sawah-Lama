@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom"
+import { useEffect } from "react"
+import { Link, useLocation } from "react-router-dom"
 import { usePublicContent } from "../hooks/usePublicContent"
 import { resolvePublicUrl } from "../utils/media"
 
@@ -39,6 +40,21 @@ function MediaPreview({ item }) {
 export default function GalleryList() {
   const { data, isLoading } = usePublicContent()
   const galleries = data?.galleryItems || []
+  const location = useLocation()
+
+  useEffect(() => {
+    if (!location.hash || !galleries.length) return undefined
+    const targetId = location.hash.replace("#", "")
+    if (!targetId) return undefined
+    const element = document.getElementById(targetId)
+    if (!element) return undefined
+    element.scrollIntoView({ behavior: "smooth", block: "start" })
+    element.classList.add("ring-2", "ring-brand-500")
+    const timer = window.setTimeout(() => {
+      element.classList.remove("ring-2", "ring-brand-500")
+    }, 1800)
+    return () => window.clearTimeout(timer)
+  }, [location.hash, galleries.length])
 
   return (
     <div className="min-h-screen bg-white">
@@ -70,6 +86,7 @@ export default function GalleryList() {
         {galleries.map((gallery) => (
           <article
             key={gallery.id}
+            id={gallery.id ? `gallery-${gallery.id}` : undefined}
             className="rounded-3xl bg-white p-6 shadow-soft ring-1 ring-slate-100"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -17,7 +17,7 @@ export default function NewsList() {
   const news = data?.newsPosts || []
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={{ fontFamily: '"Times New Roman", "Times", serif' }}>
       <div className="bg-brand-700">
         <div className="container-section py-12 text-white">
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-brand-100">Berita</p>
@@ -43,25 +43,31 @@ export default function NewsList() {
               key={item.id || item.slug}
               className="flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-soft ring-1 ring-slate-100"
             >
-              {item.cover_url ? (
-                <img
-                  src={resolvePublicUrl(item.cover_url)}
-                  alt={item.title}
-                  className="h-44 w-full object-cover"
-                  loading="lazy"
-                />
-              ) : null}
+              <div className="flex w-full items-center justify-center bg-slate-50 p-4">
+                {item.cover_url ? (
+                  <img
+                    src={resolvePublicUrl(item.cover_url)}
+                    alt={item.title}
+                    className="block h-auto w-auto max-w-full mx-auto"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex min-h-[12rem] w-full items-center justify-center rounded-2xl border border-dashed border-slate-200 text-sm text-slate-400">
+                    Tidak ada thumbnail
+                  </div>
+                )}
+              </div>
               <div className="flex flex-1 flex-col gap-3 p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-600">
                   {formatDate(item.published_at || item.created_at)}
                 </p>
-                <h2 className="text-lg font-semibold text-slate-900">{item.title}</h2>
-                <p className="text-sm text-slate-600">
+                <h2 className="text-xl font-semibold text-slate-900 leading-snug">{item.title}</h2>
+                <p className="text-base leading-relaxed text-slate-700">
                   {item.summary || item.body?.slice?.(0, 140) || ""}
                 </p>
                 <Link
                   to={buildNewsPath(item)}
-                  className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
+                  className="mt-auto inline-flex items-center gap-2 text-base font-semibold text-brand-700 hover:underline"
                 >
                   Baca berita
                   <span aria-hidden>→</span>
