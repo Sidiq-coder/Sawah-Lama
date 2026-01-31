@@ -1,5 +1,9 @@
 import SectionHeader from "./SectionHeader"
 
+const MAP_QUERY = encodeURIComponent("Kelurahan Sawah Lama, Tanjung Karang Timur, Bandar Lampung")
+const MAP_EMBED_URL = `https://maps.google.com/maps?q=${MAP_QUERY}&z=16&output=embed`
+const MAP_LINK_URL = `https://maps.google.com/maps?q=${MAP_QUERY}&z=16`
+
 export default function ContactSection({ contactInfo = [] }) {
   if (!contactInfo.length) return null
 
@@ -24,10 +28,26 @@ export default function ContactSection({ contactInfo = [] }) {
             ))}
           </article>
 
-          <article className="card min-w-0 animate-fade-up" style={{ animationDelay: "120ms" }}>
-            <div className="flex h-full min-h-[220px] items-center justify-center rounded-2xl bg-slate-100 text-sm text-slate-400">
-              Peta Lokasi (Embed)
+          <article className="card min-w-0 space-y-4 animate-fade-up" style={{ animationDelay: "120ms" }}>
+            <div className="overflow-hidden rounded-2xl shadow-inner">
+              <iframe
+                title="Lokasi Kelurahan Sawah Lama"
+                src={MAP_EMBED_URL}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-72 w-full"
+                allowFullScreen
+              />
             </div>
+            <a
+              href={MAP_LINK_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700"
+            >
+              Buka di Google Maps
+              <span aria-hidden>↗</span>
+            </a>
           </article>
         </div>
       </div>
