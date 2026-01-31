@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 import { useDashboardContent } from "../../hooks/useDashboardContent"
 import SimpleCrudSection from "../../components/dashboard/SimpleCrudSection"
-import { uploadImageToR2 } from "../../services/r2Service"
+import GalleryMediaManager from "../../components/dashboard/GalleryMediaManager"
+import { uploadFileToR2, uploadImageToR2 } from "../../services/r2Service"
 import { createRecord, deleteRecord, updateRecord } from "../../services/adminService"
 import { dashboardSections } from "./sectionsConfig"
 
@@ -16,6 +17,7 @@ export default function SectionPage() {
     () => dashboardSections.find((item) => item.path.endsWith(`/${sectionKey}`)),
     [sectionKey],
   )
+  const isGallerySection = section?.customComponent === "gallery"
 
   const refreshContent = async () => {
     await Promise.all([
@@ -48,6 +50,27 @@ export default function SectionPage() {
     await refreshContent()
   }
 
+  const handleGalleryMediaSave = async (payload, id) => {
+    if (!payload.gallery_item_id) {
+      throw new Error("Pilih galeri terlebih dahulu")
+    }
+    const prepared = {
+      ...payload,
+      sort_order: Number(payload.sort_order) || 0,
+    }
+    if (id) {
+      await updateRecord("gallery_media", id, prepared)
+    } else {
+      await createRecord("gallery_media", prepared)
+    }
+    await refreshContent()
+  }
+
+  const handleGalleryMediaDelete = async (id) => {
+    await deleteRecord("gallery_media", id)
+    await refreshContent()
+  }
+
   if (!section || !section.table) {
     return (
       <div className="rounded-3xl bg-white p-8 shadow-soft ring-1 ring-slate-100">
@@ -71,15 +94,27 @@ export default function SectionPage() {
   }
 
   return (
-    <SimpleCrudSection
-      title={section.title}
-      description={section.description}
-      items={data?.[section.key] || []}
-      fields={section.fields}
-      imageFields={section.imageFields || []}
-      onUploadImage={section.imageFields?.length ? uploadImageToR2 : undefined}
-      onSave={handleSave}
-      onDelete={handleDelete}
-    />
+    <div className="space-y-6">
+      <SimpleCrudSection
+        title={section.title}
+        description={section.description}
+        items={data?.[section.key] || []}
+        fields={section.fields}
+        imageFields={section.imageFields || []}
+        onUploadImage={section.imageFields?.length ? uploadImageToR2 : undefined}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
+
+      {isGallerySection ? (
+        <GalleryMediaManager
+          galleries={data?.galleryItems || []}
+          media={data?.galleryMedia || []}
+          onSave={handleGalleryMediaSave}
+          onDelete={handleGalleryMediaDelete}
+          onUploadFile={(file, options) => uploadFileToR2(file, { folder: "gallery", ...options })}
+        />
+      ) : null}
+    </div>
   )
 }

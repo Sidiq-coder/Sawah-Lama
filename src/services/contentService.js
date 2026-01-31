@@ -8,6 +8,7 @@ const emptyContent = {
   services: [],
   organization: [],
   galleryItems: [],
+  galleryMedia: [],
   dataGroups: [],
   contactInfo: [],
   newsPosts: [],
@@ -52,6 +53,11 @@ async function fetchOrderedRaw(table, { orderBy = "sort_order", ascending = true
   }
   const { data, error } = await query
   if (error) {
+    const missingTable = error.code === "42P01"
+    if (missingTable) {
+      console.warn(`Tabel ${table} belum tersedia. Jalankan migrasi Supabase terbaru agar data muncul.`)
+      return []
+    }
     throw error
   }
   return data || []
@@ -61,6 +67,38 @@ function ensureSupabase() {
   if (!isSupabaseConfigured || !supabase) {
     throw new Error("Supabase belum dikonfigurasi.")
   }
+}
+
+async function fetchGalleryCollections() {
+  if (!isSupabaseConfigured || !supabase) return []
+
+  const { data, error } = await supabase
+    .from("gallery_items")
+    .select("*, media:gallery_media(*)")
+    .order("sort_order", { ascending: true })
+    .order("sort_order", { ascending: true, foreignTable: "gallery_media" })
+
+  if (!error) {
+    return (
+      data?.map((item) => ({
+        ...item,
+        media: item.media?.map((mediaItem) => ({ ...mediaItem })) || [],
+      })) || []
+    )
+  }
+
+  const relationMissing = error?.code === "42P01" || /gallery_media/.test(error?.message || "")
+  console.warn(
+    relationMissing
+      ? "Tabel gallery_media belum tersedia, menggunakan data galeri dasar sebagai fallback."
+      : `Supabase error (gallery_items): ${error.message}`
+  )
+
+  const fallbackItems = await fetchOrdered("gallery_items")
+  return fallbackItems.map((item) => ({
+    ...item,
+    media: Array.isArray(item.media) ? item.media : [],
+  }))
 }
 
 export async function fetchPublicContent() {
@@ -87,7 +125,7 @@ export async function fetchPublicContent() {
       fetchOrdered("wilayah_stats"),
       fetchOrdered("services"),
       fetchOrdered("organization_members"),
-      fetchOrdered("gallery_items"),
+      fetchGalleryCollections(),
       fetchOrdered("data_groups"),
       fetchOrdered("contact_info"),
       fetchNewsPosts(),
@@ -141,6 +179,7 @@ export async function fetchDashboardContent() {
     services,
     organization,
     galleryItems,
+    galleryMedia,
     dataGroups,
     contactInfo,
     newsPosts,
@@ -152,6 +191,7 @@ export async function fetchDashboardContent() {
     fetchOrderedRaw("services"),
     fetchOrderedRaw("organization_members"),
     fetchOrderedRaw("gallery_items"),
+    fetchOrderedRaw("gallery_media"),
     fetchOrderedRaw("data_groups"),
     fetchOrderedRaw("contact_info"),
     supabase
@@ -172,6 +212,7 @@ export async function fetchDashboardContent() {
     services,
     organization,
     galleryItems,
+    galleryMedia,
     dataGroups,
     contactInfo,
     newsPosts,

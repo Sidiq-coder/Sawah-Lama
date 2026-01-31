@@ -4,6 +4,8 @@ import PublicHome from "./pages/PublicHome"
 import LoginPage from "./pages/Login"
 import NewsList from "./pages/NewsList"
 import NewsDetail from "./pages/NewsDetail"
+import GalleryList from "./pages/GalleryList"
+import DataPage from "./pages/DataPage"
 import DashboardLayout from "./pages/dashboard/DashboardLayout"
 import SectionPage from "./pages/dashboard/SectionPage"
 import AboutPage from "./pages/dashboard/AboutPage"
@@ -16,6 +18,8 @@ function App() {
         <Route path="/" element={<PublicHome />} />
         <Route path="/berita" element={<NewsList />} />
         <Route path="/berita/:slug" element={<NewsDetail />} />
+        <Route path="/galeri" element={<GalleryList />} />
+        <Route path="/data" element={<DataPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardLayout />}>

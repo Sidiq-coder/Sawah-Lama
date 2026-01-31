@@ -34,18 +34,12 @@ export default function Navbar({ navItems = [] }) {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:inline-flex">
+        <div className="hidden items-center md:inline-flex">
           <a
             href="#kontak"
             className="rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-brand-700"
           >
             Hubungi Kami
-          </a>
-          <a
-            href="/login"
-            className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-700 transition hover:bg-brand-100"
-          >
-            Dashboard
           </a>
         </div>
 
@@ -83,12 +77,6 @@ export default function Navbar({ navItems = [] }) {
               className="inline-flex w-fit rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-brand-700"
             >
               Hubungi Kami
-            </a>
-            <a
-              href="/login"
-              className="inline-flex w-fit rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-700"
-            >
-              Dashboard
             </a>
           </div>
         </div>

@@ -45,6 +45,7 @@ export default function NewsManager({ news = [], onSave, onDelete, onUploadCover
   const [editingId, setEditingId] = useState(null)
   const [status, setStatus] = useState({ type: "idle", message: "" })
   const [uploadingCover, setUploadingCover] = useState(false)
+  const [bulkUploadingImages, setBulkUploadingImages] = useState(false)
   const [editorData, setEditorData] = useState(emptyEditorData)
   const editorRef = useRef(null)
   const holderRef = useRef(null)
@@ -141,6 +142,39 @@ export default function NewsManager({ news = [], onSave, onDelete, onUploadCover
     } finally {
       setUploadingCover(false)
       event.target.value = ""
+    }
+  }
+
+  const handleBulkImageUpload = async (event) => {
+    const input = event.target
+    const files = Array.from(input.files || [])
+    if (!files.length || !onUploadFile) return
+
+    const editor = editorRef.current
+    if (!editor) {
+      setStatus({ type: "error", message: "Editor belum siap" })
+      input.value = ""
+      return
+    }
+
+    setBulkUploadingImages(true)
+    setStatus({ type: "loading", message: `Mengunggah ${files.length} gambar...` })
+
+    try {
+      await editor.isReady
+      for (const file of files) {
+        const url = await onUploadFile(file, "news")
+        editor.blocks.insert("image", {
+          file: { url },
+          caption: file.name,
+        })
+      }
+      setStatus({ type: "success", message: `${files.length} gambar ditambahkan ke konten` })
+    } catch (error) {
+      setStatus({ type: "error", message: error.message || "Gagal unggah banyak gambar" })
+    } finally {
+      setBulkUploadingImages(false)
+      input.value = ""
     }
   }
 
@@ -360,6 +394,20 @@ export default function NewsManager({ news = [], onSave, onDelete, onUploadCover
             <div className="editor-shell mt-2 rounded-2xl border border-slate-200 bg-white px-4 py-3">
               <div ref={holderRef} className="prose max-w-none" />
             </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-600">
+              Unggah banyak foto ke konten
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="mt-2 w-full rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm"
+              onChange={handleBulkImageUpload}
+              disabled={bulkUploadingImages}
+            />
+            <p className="mt-1 text-xs text-slate-500">Semua file akan otomatis ditambahkan sebagai blok gambar.</p>
           </div>
           <div>
             <label className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-600" htmlFor="tags">

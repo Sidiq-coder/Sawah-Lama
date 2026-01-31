@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom"
 import SectionHeader from "./SectionHeader"
+import { slugify } from "../utils/news"
 
 export default function DataSection({ dataGroups = [] }) {
   if (!dataGroups.length) return null
@@ -13,28 +15,34 @@ export default function DataSection({ dataGroups = [] }) {
         />
 
         <div className="mt-10 space-y-4">
-          {dataGroups.map((group, index) => (
-            <details
-              key={group.title}
-              className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-soft transition duration-300 hover:shadow-xl animate-fade-up"
-              style={{ animationDelay: `${index * 80}ms` }}
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-900">
-                {group.title}
-                <span className="text-brand-600 transition group-open:rotate-180">⌄</span>
-              </summary>
-              <div className="mt-4 space-y-2 text-sm text-slate-600">
-                {group.items?.map((item) => (
-                  <div key={item} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
-                    <span>{item}</span>
-                    <span className="rounded-full bg-brand-600 px-3 py-1 text-xs font-semibold text-white">
-                      Lihat
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </details>
-          ))}
+          {dataGroups.map((group, index) => {
+            const anchor = `/data#${slugify(group.title || "data")}`
+            return (
+              <details
+                key={group.title}
+                className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-soft transition duration-300 hover:shadow-xl animate-fade-up"
+                style={{ animationDelay: `${index * 80}ms` }}
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-900">
+                  {group.title}
+                  <span className="text-brand-600 transition group-open:rotate-180">⌄</span>
+                </summary>
+                <div className="mt-4 space-y-2 text-sm text-slate-600">
+                  {group.items?.map((item) => (
+                    <div key={item} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
+                      <span>{item}</span>
+                      <Link
+                        to={anchor}
+                        className="rounded-full bg-brand-600 px-3 py-1 text-xs font-semibold text-white"
+                      >
+                        Lihat
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )
+          })}
         </div>
       </div>
     </section>

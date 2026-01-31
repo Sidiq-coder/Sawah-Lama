@@ -25,6 +25,12 @@ export default function NewsList() {
           <p className="mt-2 text-sm text-brand-100">
             Ikuti informasi terbaru Kelurahan Sawah Lama.
           </p>
+          <Link
+            to="/"
+            className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-white hover:text-brand-700"
+          >
+            ← Kembali ke Beranda
+          </Link>
         </div>
       </div>
 

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import SectionHeader from "./SectionHeader"
 import { resolvePublicUrl } from "../utils/media"
 
@@ -15,7 +16,9 @@ export default function GallerySection({ items = [] }) {
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((item, index) => {
-            const imageUrl = resolvePublicUrl(item.image_url || item.imageUrl)
+            const coverSource =
+              item.cover_url || item.coverUrl || item.image_url || item.imageUrl || item.media?.[0]?.url
+            const imageUrl = resolvePublicUrl(coverSource)
             return (
               <article
                 key={item.id || item.title}
@@ -43,9 +46,12 @@ export default function GallerySection({ items = [] }) {
         </div>
 
         <div className="mt-8 text-center">
-          <button className="rounded-full bg-brand-700 px-6 py-2 text-sm font-semibold text-white shadow-soft">
+          <Link
+            to="/galeri"
+            className="inline-flex rounded-full bg-brand-700 px-6 py-2 text-sm font-semibold text-white shadow-soft"
+          >
             Lihat Semua Galeri
-          </button>
+          </Link>
         </div>
       </div>
     </section>

@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 import { usePublicContent } from "../hooks/usePublicContent"
 import { resolvePublicUrl } from "../utils/media"
+import { matchesNewsIdentifier } from "../utils/news"
 
 function formatDate(value) {
   if (!value) return ""
@@ -173,7 +174,7 @@ export default function NewsDetail() {
 
   const article = useMemo(() => {
     const list = data?.newsPosts || []
-    return list.find((item) => item.slug === slug || item.id === slug)
+    return list.find((item) => matchesNewsIdentifier(item, slug))
   }, [data, slug])
 
   const blocks = useMemo(() => {

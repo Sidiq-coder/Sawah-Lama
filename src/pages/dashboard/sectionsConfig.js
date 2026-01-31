@@ -76,10 +76,16 @@ export const dashboardSections = [
     fields: [
       { name: "title", label: "Judul" },
       { name: "caption", label: "Keterangan", type: "textarea" },
-      { name: "image_url", label: "Foto", placeholder: "https://" },
+      {
+        name: "cover_url",
+        label: "Cover",
+        placeholder: "https://",
+        helper: "Cover akan muncul pada landing page.",
+      },
       { name: "sort_order", label: "Urutan", type: "number" },
     ],
-    imageFields: ["image_url"],
+    imageFields: ["cover_url"],
+    customComponent: "gallery",
   },
   {
     key: "dataGroups",
@@ -90,7 +96,12 @@ export const dashboardSections = [
     description: "Daftar konten pada bagian Data.",
     fields: [
       { name: "title", label: "Judul" },
-      { name: "items", label: "Item", type: "list", placeholder: "Pisahkan setiap data dengan baris baru" },
+      {
+        name: "items",
+        label: "Entri Data",
+        type: "dataPairs",
+        helper: "Isi nama data dan keterangannya per baris. Simpanan akan otomatis mengikuti format tabel publik.",
+      },
       { name: "sort_order", label: "Urutan", type: "number" },
     ],
   },

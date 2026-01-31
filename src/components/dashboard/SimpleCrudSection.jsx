@@ -1,13 +1,41 @@
 import { useMemo, useState } from "react"
 
+function createEmptyPair() {
+  return { name: "", value: "" }
+}
+
 function buildInitialState(fields) {
   return fields.reduce((acc, field) => {
+    if (field.type === "dataPairs") {
+      acc[field.name] = field.defaultValue ?? [createEmptyPair()]
+      return acc
+    }
     acc[field.name] = field.defaultValue ?? (field.type === "number" ? 0 : "")
     return acc
   }, {})
 }
 
 function formatInputValue(field, value) {
+  if (field.type === "dataPairs") {
+    if (!value) return [createEmptyPair()]
+    if (Array.isArray(value) && value.length) {
+      return value.map((entry) => {
+        if (typeof entry === "string") {
+          const match = entry.match(/^(.*?)\s*[:\-–—|=]\s*(.+)$/)
+          if (match) {
+            return { name: match[1].trim(), value: match[2].trim() }
+          }
+          return { name: entry.trim(), value: "" }
+        }
+        return {
+          name: entry?.name || "",
+          value: entry?.value || "",
+        }
+      })
+    }
+    return [createEmptyPair()]
+  }
+
   if (field.type === "list") {
     if (Array.isArray(value)) {
       return value.join("\n")
@@ -25,6 +53,21 @@ function formatInputValue(field, value) {
 function parseForSubmit(field, value) {
   if (field.type === "number") {
     return Number(value) || 0
+  }
+
+  if (field.type === "dataPairs") {
+    if (!Array.isArray(value)) return []
+    return value
+      .map((entry) => {
+        const name = entry?.name?.trim?.() || ""
+        const pairValue = entry?.value?.trim?.() || ""
+        if (!name && !pairValue) return null
+        if (name && pairValue) {
+          return `${name}: ${pairValue}`
+        }
+        return name || pairValue || null
+      })
+      .filter(Boolean)
   }
 
   if (field.type === "list") {
@@ -76,6 +119,10 @@ export default function SimpleCrudSection({
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormState((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handlePairsChange = (fieldName, rows) => {
+    setFormState((prev) => ({ ...prev, [fieldName]: rows.length ? rows : [createEmptyPair()] }))
   }
 
   const handleSubmit = async (event) => {
@@ -200,7 +247,9 @@ export default function SimpleCrudSection({
               <label className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-600" htmlFor={field.name}>
                 {field.label}
               </label>
-              {field.type === "textarea" || field.type === "list" ? (
+              {field.type === "dataPairs" ? (
+                <DataPairsField value={formState[field.name]} onChange={(rows) => handlePairsChange(field.name, rows)} />
+              ) : field.type === "textarea" || field.type === "list" ? (
                 <textarea
                   id={field.name}
                   name={field.name}
@@ -257,5 +306,83 @@ export default function SimpleCrudSection({
         </form>
       </div>
     </section>
+  )
+}
+
+function DataPairsField({ value, onChange }) {
+  const rows = Array.isArray(value) && value.length ? value : [createEmptyPair()]
+
+  const updateRow = (index, key, nextValue) => {
+    const nextRows = rows.map((row, rowIndex) => (rowIndex === index ? { ...row, [key]: nextValue } : row))
+    onChange(nextRows)
+  }
+
+  const addRow = () => {
+    onChange([...rows, createEmptyPair()])
+  }
+
+  const removeRow = (index) => {
+    if (rows.length === 1) {
+      onChange([createEmptyPair()])
+      return
+    }
+    const nextRows = rows.filter((_, rowIndex) => rowIndex !== index)
+    onChange(nextRows.length ? nextRows : [createEmptyPair()])
+  }
+
+  return (
+    <div className="mt-2 space-y-3 rounded-2xl border border-slate-200 p-3">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-left text-sm text-slate-700">
+          <thead>
+            <tr className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <th className="px-3 py-2">Nama Data</th>
+              <th className="px-3 py-2">Nilai / Keterangan</th>
+              <th className="px-3 py-2 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {rows.map((row, index) => (
+              <tr key={`pair-${index}`}>
+                <td className="px-3 py-2">
+                  <input
+                    type="text"
+                    className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+                    value={row.name}
+                    onChange={(event) => updateRow(index, "name", event.target.value)}
+                    placeholder="Jumlah RW"
+                  />
+                </td>
+                <td className="px-3 py-2">
+                  <input
+                    type="text"
+                    className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+                    value={row.value}
+                    onChange={(event) => updateRow(index, "value", event.target.value)}
+                    placeholder="15"
+                  />
+                </td>
+                <td className="px-3 py-2 text-right">
+                  <button
+                    type="button"
+                    className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-600"
+                    onClick={() => removeRow(index)}
+                  >
+                    Hapus
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button
+        type="button"
+        onClick={addRow}
+        className="w-full rounded-2xl border border-dashed border-brand-400 px-4 py-2 text-sm font-semibold text-brand-600"
+      >
+        + Tambah Baris Data
+      </button>
+    </div>
   )
 }
