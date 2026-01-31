@@ -6,6 +6,7 @@ import NewsList from "./pages/NewsList"
 import NewsDetail from "./pages/NewsDetail"
 import GalleryList from "./pages/GalleryList"
 import DataPage from "./pages/DataPage"
+import WilayahInfo from "./pages/WilayahInfo"
 import DashboardLayout from "./pages/dashboard/DashboardLayout"
 import SectionPage from "./pages/dashboard/SectionPage"
 import AboutPage from "./pages/dashboard/AboutPage"
@@ -20,6 +21,7 @@ function App() {
         <Route path="/berita/:slug" element={<NewsDetail />} />
         <Route path="/galeri" element={<GalleryList />} />
         <Route path="/data" element={<DataPage />} />
+        <Route path="/wilayah" element={<WilayahInfo />} />
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardLayout />}>

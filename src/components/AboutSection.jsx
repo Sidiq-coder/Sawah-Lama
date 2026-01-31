@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import SectionHeader from "./SectionHeader"
 
 export default function AboutSection({ aboutInfo, wilayahInfo = [] }) {
@@ -33,10 +34,16 @@ export default function AboutSection({ aboutInfo, wilayahInfo = [] }) {
             </div>
             <div className="mt-4 space-y-3 text-sm">
               {wilayahInfo?.map((item) => (
-                <div key={item.label} className="flex items-center justify-between">
-                  <span className="text-slate-500">{item.label}</span>
-                  <span className="font-semibold text-slate-800">{item.value}</span>
-                </div>
+                <Link
+                  key={item.label}
+                  to="/wilayah"
+                  className="flex items-center justify-between rounded-2xl px-3 py-2 text-slate-600 transition hover:bg-brand-50/80"
+                >
+                  <span>{item.label}</span>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-brand-700">
+                    {item.value || "Lihat"}
+                  </span>
+                </Link>
               ))}
             </div>
           </article>

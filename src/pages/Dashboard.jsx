@@ -105,8 +105,11 @@ const sectionsConfig = [
     fields: [
       { name: "label", label: "Label" },
       { name: "value", label: "Nilai" },
+      { name: "description", label: "Keterangan", type: "textarea" },
+      { name: "image_url", label: "Foto", placeholder: "https://" },
       { name: "sort_order", label: "Urutan", type: "number" },
     ],
+    imageFields: ["image_url"],
   },
   {
     key: "contactInfo",
