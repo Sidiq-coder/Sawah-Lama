@@ -24,7 +24,7 @@ function App() {
         <Route path="/layanan" element={<ServicesList />} />
         <Route path="/data" element={<DataPage />} />
         <Route path="/wilayah" element={<WilayahInfo />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login-admin-sawah-lama" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Navigate to="/dashboard/tentang" replace />} />

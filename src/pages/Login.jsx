@@ -70,7 +70,7 @@ export default function LoginPage() {
               onChange={handleChange}
               required
               className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
-              placeholder="admin@sawahlama.id"
+              placeholder="email"
             />
           </div>
           <div>
