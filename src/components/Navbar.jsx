@@ -15,12 +15,12 @@ export default function Navbar({ navItems = [] }) {
     <header className="sticky top-0 z-30 bg-brand-700 text-white shadow-soft">
       <div className="container-section flex items-center justify-between py-4">
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-700">
-            <span className="text-lg font-bold">SL</span>
+          <div className="grid h-10 w-10 place-items-center rounded-xl">
+            <img src="/src/assets/logo.png" alt="Logo Kelurahan Sawah Lama" className="h-10 w-10" />
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-100">
-              Pemerintah Kota
+              WEB KELURAHAN
             </p>
             <p className="text-sm font-bold">Kelurahan Sawah Lama</p>
           </div>
@@ -70,15 +70,6 @@ export default function Navbar({ navItems = [] }) {
               {item.label}
             </a>
           ))}
-          <div className="flex flex-col gap-2">
-            <a
-              href="#kontak"
-              onClick={handleClose}
-              className="inline-flex w-fit rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-brand-700"
-            >
-              Hubungi Kami
-            </a>
-          </div>
         </div>
       </div>
     </header>
