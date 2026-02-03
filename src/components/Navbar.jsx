@@ -15,8 +15,8 @@ export default function Navbar({ navItems = [] }) {
     <header className="sticky top-0 z-30 bg-brand-700 text-white shadow-soft">
       <div className="container-section flex items-center justify-between py-4">
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl">
-            <img src="../assets/logo.png" alt="Logo Kelurahan Sawah Lama" className="h-10 w-10" />
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-white text-brand-700">
+            <span className="text-lg font-bold">SL</span>
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-100">
