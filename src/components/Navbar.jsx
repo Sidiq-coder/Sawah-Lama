@@ -16,7 +16,7 @@ export default function Navbar({ navItems = [] }) {
       <div className="container-section flex items-center justify-between py-4">
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-xl">
-            <img src="/src/assets/logo.png" alt="Logo Kelurahan Sawah Lama" className="h-10 w-10" />
+            <img src="../assets/logo.png" alt="Logo Kelurahan Sawah Lama" className="h-10 w-10" />
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-100">
