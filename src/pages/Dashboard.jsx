@@ -57,7 +57,7 @@ const sectionsConfig = [
   {
     key: "organization",
     table: "organization_members",
-    title: "Struktur Organisasi",
+    title: "Struktur Pemerintahan & Organisasi",
     description: "Atur data pejabat kelurahan.",
     fields: [
       { name: "name", label: "Nama" },

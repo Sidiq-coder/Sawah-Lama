@@ -40,6 +40,61 @@ function parseEditorData(body) {
   }
 }
 
+function sanitizeEditorData(raw) {
+  const data = raw && typeof raw === "object" ? raw : emptyEditorData
+  const blocks = Array.isArray(data.blocks) ? data.blocks : []
+  const sanitizedBlocks = blocks
+    .map((block) => {
+      if (!block || typeof block !== "object") return null
+      const type = block.type
+      const blockData = block.data || {}
+
+      if (type === "paragraph") {
+        return { type, data: { text: String(blockData.text || "") } }
+      }
+      if (type === "header") {
+        return { type, data: { text: String(blockData.text || ""), level: blockData.level || 3 } }
+      }
+      if (type === "list") {
+        return { type, data: { style: blockData.style || "unordered", items: blockData.items || [] } }
+      }
+      if (type === "checklist") {
+        return { type, data: { items: blockData.items || [] } }
+      }
+      if (type === "quote") {
+        return {
+          type,
+          data: {
+            text: String(blockData.text || ""),
+            caption: String(blockData.caption || ""),
+            alignment: blockData.alignment || "left",
+          },
+        }
+      }
+      if (type === "table") {
+        return { type, data: { content: blockData.content || [] } }
+      }
+      if (type === "embed") {
+        return { type, data: blockData }
+      }
+      if (type === "image") {
+        const url = blockData?.file?.url
+        if (!url) return null
+        return { type, data: { ...blockData, file: { url } } }
+      }
+      if (type === "attaches") {
+        const url = blockData?.file?.url
+        if (!url) return null
+        return { type, data: blockData }
+      }
+
+      return null
+    })
+    .filter(Boolean)
+
+  return { ...data, blocks: sanitizedBlocks }
+}
+
 export default function NewsManager({ news = [], onSave, onDelete, onUploadCover, onUploadFile }) {
   const [formState, setFormState] = useState(emptyState)
   const [editingId, setEditingId] = useState(null)
@@ -71,7 +126,7 @@ export default function NewsManager({ news = [], onSave, onDelete, onUploadCover
       is_featured: Boolean(item.is_featured),
       is_published: Boolean(item.is_published),
     })
-    const nextEditorData = parseEditorData(item.body)
+    const nextEditorData = sanitizeEditorData(parseEditorData(item.body))
     setEditorData(nextEditorData)
     renderEditorData(nextEditorData)
     setEditingId(item.id)
@@ -93,6 +148,9 @@ export default function NewsManager({ news = [], onSave, onDelete, onUploadCover
     if (!onSave) return
     setStatus({ type: "loading", message: "Menyimpan berita..." })
     try {
+      if (editorRef.current?.isReady) {
+        await editorRef.current.isReady
+      }
       const editorOutput = editorRef.current ? await editorRef.current.save() : emptyEditorData
       await onSave(
         {
@@ -185,7 +243,7 @@ export default function NewsManager({ news = [], onSave, onDelete, onUploadCover
       holder: holderRef.current,
       placeholder: "Tulis isi berita di sini...",
       autofocus: false,
-      data,
+      data: sanitizeEditorData(data),
       tools: {
         paragraph: {
           class: Paragraph,

@@ -40,6 +40,7 @@ const emptyContent = {
   wilayahInfo: [],
   wilayahMap: null,
   services: [],
+  organizationPositions: [],
   organization: [],
   galleryItems: [],
   dataGroups: [],
@@ -66,7 +67,7 @@ export default function PublicHome() {
         <InfoCards cards={content.featureCards} />
         <AboutSection aboutInfo={content.aboutInfo} wilayahInfo={content.wilayahInfo} />
         <ServicesSection services={content.services} />
-        <OrganizationSection organization={content.organization} />
+        <OrganizationSection organization={content.organization} positions={content.organizationPositions} />
         <GallerySection items={latestGalleryItems} />
         <NewsSection news={latestNewsPosts} />
         <DataSection dataGroups={content.dataGroups} />

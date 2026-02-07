@@ -39,7 +39,7 @@ export default function DashboardLayout() {
       </header>
 
       <div className="container-section grid gap-6 py-8 lg:grid-cols-[240px_1fr]">
-        <aside className="rounded-3xl bg-white p-5 shadow-soft ring-1 ring-slate-100">
+        <aside className="sticky top-24 h-[calc(100vh-7rem)] self-start overflow-hidden rounded-3xl bg-white p-5 shadow-soft ring-1 ring-slate-100">
           <div className="space-y-6">
             {sidebarGroups.map((group) => (
               <div key={group.title}>

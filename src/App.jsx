@@ -8,6 +8,7 @@ import GalleryList from "./pages/GalleryList"
 import ServicesList from "./pages/ServicesList"
 import DataPage from "./pages/DataPage"
 import WilayahInfo from "./pages/WilayahInfo"
+import OrganizationList from "./pages/OrganizationList"
 import DashboardLayout from "./pages/dashboard/DashboardLayout"
 import SectionPage from "./pages/dashboard/SectionPage"
 import AboutPage from "./pages/dashboard/AboutPage"
@@ -24,6 +25,7 @@ function App() {
         <Route path="/layanan" element={<ServicesList />} />
         <Route path="/data" element={<DataPage />} />
         <Route path="/wilayah" element={<WilayahInfo />} />
+        <Route path="/organisasi" element={<OrganizationList />} />
         <Route path="/login-admin-sawah-lama" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardLayout />}>

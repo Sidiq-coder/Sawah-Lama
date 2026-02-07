@@ -10,6 +10,10 @@ function buildInitialState(fields) {
       acc[field.name] = field.defaultValue ?? [createEmptyPair()]
       return acc
     }
+    if (field.type === "boolean") {
+      acc[field.name] = Boolean(field.defaultValue)
+      return acc
+    }
     acc[field.name] = field.defaultValue ?? (field.type === "number" ? 0 : "")
     return acc
   }, {})
@@ -47,6 +51,10 @@ function formatInputValue(field, value) {
     return typeof value === "number" ? value : Number(value) || 0
   }
 
+  if (field.type === "boolean") {
+    return Boolean(value)
+  }
+
   return value ?? ""
 }
 
@@ -70,6 +78,10 @@ function parseForSubmit(field, value) {
       .filter(Boolean)
   }
 
+  if (field.type === "boolean") {
+    return Boolean(value)
+  }
+
   if (field.type === "list") {
     if (!value) return []
     return value
@@ -79,6 +91,16 @@ function parseForSubmit(field, value) {
   }
 
   return value
+}
+
+function resolveOptions(field) {
+  if (typeof field.getOptions === "function") {
+    return field.getOptions() || []
+  }
+  if (Array.isArray(field.options)) {
+    return field.options
+  }
+  return []
 }
 
 export default function SimpleCrudSection({
@@ -91,6 +113,8 @@ export default function SimpleCrudSection({
   ctaLabel = "Simpan",
   imageFields = [],
   onUploadImage,
+  groupConfig,
+  getGroupKey,
 }) {
   const initialState = useMemo(() => buildInitialState(fields), [fields])
   const [formState, setFormState] = useState(initialState)
@@ -204,6 +228,52 @@ export default function SimpleCrudSection({
         <div className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
           {items.length === 0 ? (
             <p className="text-sm text-slate-500">Belum ada data.</p>
+          ) : getGroupKey && groupConfig ? (
+            <div className="space-y-6 text-sm">
+              {buildGroupedItems(items, getGroupKey, groupConfig).map((group) => (
+                <div key={group.key} className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="chip">Posisi</span>
+                    <p className="text-sm font-semibold text-slate-900">{group.label}</p>
+                  </div>
+                  <ul className="space-y-3">
+                    {group.items.map((item) => (
+                      <li
+                        key={item.id}
+                        className="flex items-start justify-between gap-4 rounded-2xl bg-white p-3 shadow-sm"
+                      >
+                        <div>
+                          <p className="font-semibold text-slate-900">
+                            {item.title || item.name || item.label}
+                          </p>
+                          {item.description || item.caption || item.value ? (
+                            <p className="text-xs text-slate-500">
+                              {item.description || item.caption || item.value}
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="inline-flex gap-2">
+                          <button
+                            type="button"
+                            className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+                            onClick={() => handleEdit(item)}
+                          >
+                            Ubah
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-600"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           ) : (
             <ul className="space-y-3 text-sm">
               {items.map((item) => (
@@ -249,6 +319,42 @@ export default function SimpleCrudSection({
               </label>
               {field.type === "dataPairs" ? (
                 <DataPairsField value={formState[field.name]} onChange={(rows) => handlePairsChange(field.name, rows)} />
+              ) : field.type === "select" ? (
+                <select
+                  id={field.name}
+                  name={field.name}
+                  className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
+                  value={formState[field.name]}
+                  onChange={handleChange}
+                >
+                  <option value="">{field.placeholder || "Pilih"}</option>
+                  {resolveOptions(field).map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              ) : field.type === "boolean" ? (
+                <label
+                  htmlFor={field.name}
+                  className="mt-3 inline-flex items-center gap-3 text-sm text-slate-600"
+                >
+                  <div className="relative">
+                    <input
+                      id={field.name}
+                      name={field.name}
+                      type="checkbox"
+                      className="peer sr-only"
+                      checked={Boolean(formState[field.name])}
+                      onChange={(event) =>
+                        setFormState((prev) => ({ ...prev, [field.name]: event.target.checked }))
+                      }
+                    />
+                    <span className="block h-6 w-11 rounded-full bg-slate-200 transition peer-checked:bg-brand-600" />
+                    <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5" />
+                  </div>
+                  <span>{field.placeholder || "Aktif"}</span>
+                </label>
               ) : field.type === "textarea" || field.type === "list" ? (
                 <textarea
                   id={field.name}
@@ -307,6 +413,38 @@ export default function SimpleCrudSection({
       </div>
     </section>
   )
+}
+
+function buildGroupedItems(items, getGroupKey, groupConfig) {
+  const buckets = new Map()
+  items.forEach((item) => {
+    const key = getGroupKey(item) || "__ungrouped__"
+    if (!buckets.has(key)) buckets.set(key, [])
+    buckets.get(key).push(item)
+  })
+
+  const orderedGroups = []
+  const usedKeys = new Set()
+  if (Array.isArray(groupConfig.order)) {
+    groupConfig.order.forEach((group) => {
+      if (buckets.has(group.key)) {
+        orderedGroups.push({
+          key: group.key,
+          label: group.label || group.key,
+          items: buckets.get(group.key),
+        })
+        usedKeys.add(group.key)
+      }
+    })
+  }
+
+  buckets.forEach((groupItems, key) => {
+    if (usedKeys.has(key)) return
+    const label = groupConfig.labels?.[key] || groupConfig.fallbackLabel || key
+    orderedGroups.push({ key, label, items: groupItems })
+  })
+
+  return orderedGroups
 }
 
 function DataPairsField({ value, onChange }) {

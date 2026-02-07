@@ -8,6 +8,7 @@ import WilayahMapEditor from "../../components/dashboard/WilayahMapEditor"
 import { uploadFileToR2, uploadImageToR2 } from "../../services/r2Service"
 import { createRecord, deleteRecord, updateRecord, saveWilayahMap } from "../../services/adminService"
 import { dashboardSections } from "./sectionsConfig"
+import { buildNewsPath } from "../../utils/news"
 
 export default function SectionPage() {
   const { sectionKey } = useParams()
@@ -19,8 +20,43 @@ export default function SectionPage() {
     [sectionKey],
   )
   const isGallerySection = section?.customComponent === "gallery"
-  const isServiceSection = section?.customComponent === "serviceMedia"
   const isWilayahSection = section?.customComponent === "wilayahMap"
+
+  const sectionFields = useMemo(() => {
+    if (!section) return []
+    if (section.key === "organization") {
+      const positionOptions = (data?.organizationPositions || [])
+        .slice()
+        .sort((a, b) => (Number(a?.sort_order) || 0) - (Number(b?.sort_order) || 0))
+        .map((pos) => ({ value: pos.id, label: pos.title }))
+      return section.fields.map((field) =>
+        field.name === "position_id" ? { ...field, options: positionOptions } : field,
+      )
+    }
+    if (section.key === "services") {
+      const newsOptions = (data?.newsPosts || []).map((item) => ({
+        value: buildNewsPath(item),
+        label: item.title || "Berita",
+      }))
+      return section.fields.map((field) =>
+        field.name === "cta_link_picker" ? { ...field, options: newsOptions } : field,
+      )
+    }
+    return section.fields
+  }, [section, data])
+
+  const sectionItems = useMemo(() => {
+    if (!section) return []
+    const items = data?.[section.key] || []
+    if (section.key === "services") {
+      const newsLinks = new Set((data?.newsPosts || []).map((item) => buildNewsPath(item)))
+      return items.map((item) => ({
+        ...item,
+        cta_link_picker: newsLinks.has(item.cta_link) ? item.cta_link : "",
+      }))
+    }
+    return items
+  }, [section, data])
 
   const refreshContent = async () => {
     await Promise.all([
@@ -32,6 +68,12 @@ export default function SectionPage() {
   const handleSave = async (payload, id) => {
     if (!section) return
     const prepared = { ...payload }
+    if (section.key === "services") {
+      if (prepared.cta_link_picker) {
+        prepared.cta_link = prepared.cta_link_picker
+      }
+      delete prepared.cta_link_picker
+    }
     if (section.table === "gallery_items") {
       if (!prepared.image_url) {
         prepared.image_url = prepared.cover_url || ""
@@ -79,27 +121,6 @@ export default function SectionPage() {
     await refreshContent()
   }
 
-  const handleServiceMediaSave = async (payload, id) => {
-    if (!payload.service_id) {
-      throw new Error("Pilih layanan terlebih dahulu")
-    }
-    const prepared = {
-      ...payload,
-      sort_order: Number(payload.sort_order) || 0,
-    }
-    if (id) {
-      await updateRecord("service_media", id, prepared)
-    } else {
-      await createRecord("service_media", prepared)
-    }
-    await refreshContent()
-  }
-
-  const handleServiceMediaDelete = async (id) => {
-    await deleteRecord("service_media", id)
-    await refreshContent()
-  }
-
   const handleWilayahMapSave = async (payload) => {
     await saveWilayahMap(payload)
     await refreshContent()
@@ -132,36 +153,45 @@ export default function SectionPage() {
       <SimpleCrudSection
         title={section.title}
         description={section.description}
-        items={data?.[section.key] || []}
-        fields={section.fields}
+        items={sectionItems}
+        fields={sectionFields}
         imageFields={section.imageFields || []}
         onUploadImage={section.imageFields?.length ? uploadImageToR2 : undefined}
         onSave={handleSave}
         onDelete={handleDelete}
+        getGroupKey={
+          section.key === "organization"
+            ? (item) => item.position_id || "__unassigned__"
+            : undefined
+        }
+        groupConfig={
+          section.key === "organization"
+            ? {
+                order: (data?.organizationPositions || [])
+                  .slice()
+                  .sort((a, b) => (Number(a?.sort_order) || 0) - (Number(b?.sort_order) || 0))
+                  .map((pos) => ({ key: pos.id, label: pos.title })),
+                labels: { __unassigned__: "Anggota lainnya" },
+                fallbackLabel: "Posisi lainnya",
+              }
+            : undefined
+        }
       />
 
-      {isGallerySection || isServiceSection ? (
+      {isGallerySection ? (
         <GalleryMediaManager
-          galleries={isGallerySection ? data?.galleryItems || [] : data?.services || []}
-          media={isGallerySection ? data?.galleryMedia || [] : data?.serviceMedia || []}
-          relationKey={isGallerySection ? "gallery_item_id" : "service_id"}
-          title={isGallerySection ? "Media Galeri" : "Media Layanan"}
-          description={
-            isGallerySection
-              ? "Kelola foto & video per galeri"
-              : "Tambahkan foto atau video pendukung untuk setiap layanan."
-          }
-          emptyStateMessage={
-            isGallerySection
-              ? "Tambahkan galeri terlebih dahulu untuk mengunggah media."
-              : "Tambahkan layanan terlebih dahulu untuk mengunggah media."
-          }
-          selectLabel={isGallerySection ? "Pilih Galeri" : "Pilih Layanan"}
-          activeLabelPrefix={isGallerySection ? "Galeri aktif" : "Layanan aktif"}
-          collectionName={isGallerySection ? "galeri" : "layanan"}
-          uploadFolder={isGallerySection ? "gallery" : "services"}
-          onSave={isGallerySection ? handleGalleryMediaSave : handleServiceMediaSave}
-          onDelete={isGallerySection ? handleGalleryMediaDelete : handleServiceMediaDelete}
+          galleries={data?.galleryItems || []}
+          media={data?.galleryMedia || []}
+          relationKey="gallery_item_id"
+          title="Media Galeri"
+          description="Kelola foto & video per galeri"
+          emptyStateMessage="Tambahkan galeri terlebih dahulu untuk mengunggah media."
+          selectLabel="Pilih Galeri"
+          activeLabelPrefix="Galeri aktif"
+          collectionName="galeri"
+          uploadFolder="gallery"
+          onSave={handleGalleryMediaSave}
+          onDelete={handleGalleryMediaDelete}
           onUploadFile={uploadFileToR2}
         />
       ) : null}
