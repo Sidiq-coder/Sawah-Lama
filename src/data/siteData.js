@@ -2,11 +2,11 @@ export const navItems = [
   { label: "Beranda", href: "#beranda" },
   { label: "Tentang", href: "#tentang" },
   { label: "Pelayanan", href: "#pelayanan" },
-  { label: "Pemerintahan & Organisasi", href: "#organisasi" },
+  { label: "Pemerintahan & Organisasi", href: "/organisasi" },
   { label: "Wilayah", href: "/wilayah" },
-  { label: "Berita", href: "#berita" },
-  { label: "Galeri", href: "#galeri" },
-  { label: "Data", href: "#data" },
+  { label: "Berita", href: "/berita" },
+  { label: "Galeri", href: "/galeri" },
+  { label: "Data", href: "/data" },
   { label: "Kontak", href: "#kontak" },
 ]
 
