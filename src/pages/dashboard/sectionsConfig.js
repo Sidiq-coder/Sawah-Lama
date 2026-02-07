@@ -212,8 +212,6 @@ export const sidebarGroups = [
       "services",
       "organizationPositions",
       "organization",
-      "galleryItems",
-      "news",
     ],
   },
   {
@@ -222,6 +220,6 @@ export const sidebarGroups = [
   },
   {
     title: "Publikasi",
-    keys: [],
+    keys: ["galleryItems", "news"],
   },
 ]
